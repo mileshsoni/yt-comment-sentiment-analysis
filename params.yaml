@@ -1,0 +1,9 @@
+data_ingestion:
+  test_size: 0.2
+  
+model_building:
+  ngram_range: [1, 3]  
+  max_features: 2000
+  learning_rate: 0.0679484162034985
+  max_depth: 17
+  n_estimators: 333
