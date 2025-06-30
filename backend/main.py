@@ -59,15 +59,19 @@ def preprocess_comment(comment: str) -> str:
         return comment
 
 # -------------------- Model Loading --------------------
-def load_model_and_vectorizer(model_name, model_version, vectorizer_path):
+
+def load_model_and_vectorizer(model_name, vectorizer_path):
     mlflow.set_tracking_uri("http://ec2-18-233-10-235.compute-1.amazonaws.com:5000/")
     client = MlflowClient()
-    model_uri = f"models:/{model_name}/{model_version}"
-    model = mlflow.pyfunc.load_model(model_uri)
+    model = mlflow.pyfunc.load_model("models:/{}/Production".format(model_name))
+    model_info = client.get_latest_versions(name=model_name, stages=["Production"])[0]
     vectorizer = joblib.load(vectorizer_path)
-    return model, vectorizer
-
-model, vectorizer = load_model_and_vectorizer("yt_chrome_plugin_model", "1", "./tfidf_vectorizer.pkl")
+    return model, vectorizer, model_info
+try:
+    model, vectorizer, model_info = load_model_and_vectorizer("yt_chrome_plugin_model", "./tfidf_vectorizer.pkl")
+    model_loaded = True
+except Exception as e:
+    raise HTTPException(status_code = 500, detail = f"[Startup Error] Failed to load model: {e}")
 
 # -------------------- Routes --------------------
 @app.get("/")
@@ -149,6 +153,20 @@ async def generate_wordcloud(request: CommentsRequest):
         return StreamingResponse(img_io, media_type='image/png')
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Word cloud generation failed: {str(e)}")
+    
+@app.get("/health", tags=["Health Check"])
+def health_check():
+    status = "ok" if model_loaded else "unhealthy"
+    status_code = 200 if model_loaded else 503
+    model_version = model_info.version
+    return JSONResponse(
+        content={
+            "status": status,
+            "model_loaded": model_loaded,
+            "model_version": f"v{model_version}" if model_version else None
+        },
+        status_code=status_code
+    )
 
 @app.post("/generate_trend_graph")
 async def generate_trend_graph(request: SentimentTrendRequest):
