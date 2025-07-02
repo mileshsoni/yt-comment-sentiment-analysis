@@ -9,14 +9,14 @@ echo "Pulling Docker image..."
 docker pull 879381240041.dkr.ecr.us-east-1.amazonaws.com/yt-chrome-plugin:latest
 
 echo "Checking for existing container..."
-if [ "$(docker ps -q -f name=campusx-app)" ]; then
+if [ "$(docker ps -q -f name=my-app)" ]; then
     echo "Stopping existing container..."
-    docker stop campusx-app
+    docker stop my-app
 fi
 
-if [ "$(docker ps -aq -f name=campusx-app)" ]; then
+if [ "$(docker ps -aq -f name=my-app)" ]; then
     echo "Removing existing container..."
-    docker rm campusx-app
+    docker rm my-app
 fi
 
 echo "Starting new container..."
