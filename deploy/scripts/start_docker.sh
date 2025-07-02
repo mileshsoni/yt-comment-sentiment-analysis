@@ -19,6 +19,6 @@ if [ "$(docker ps -aq -f name=my-app)" ]; then
     docker rm my-app
 fi
 
-echo "Starting new container..."
+echo "Starting new container...."
 docker run -d -p 80:8000 --name my-app 879381240041.dkr.ecr.us-east-1.amazonaws.com/yt-chrome-plugin:latest
 echo "Container started successfully."
