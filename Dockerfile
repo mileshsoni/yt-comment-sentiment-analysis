@@ -9,9 +9,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && apt-get clean && rm -rf /var/lib/apt/lists/* \
  && python -m pip install --upgrade pip \
  && python -m pip install --no-cache-dir -r requirements.txt \
- && python -m nltk.downloader stopwords wordnet \
+ && python -m nltk.downloader -d /usr/local/nltk_data stopwords wordnet \
  && find /usr/local/lib/python3.10/site-packages -name "*.pyc" -delete \
  && find /usr/local/lib/python3.10/site-packages -type d -name "tests" -exec rm -r {} +
+
 
 FROM python:3.10-slim AS final
 
@@ -20,6 +21,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && apt
 WORKDIR /app
 COPY --from=build /usr/local /usr/local
 COPY --from=build /app /app
+
+ENV NLTK_DATA=/usr/local/nltk_data
 
 EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
