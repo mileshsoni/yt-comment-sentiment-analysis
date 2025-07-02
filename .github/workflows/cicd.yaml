@@ -146,7 +146,7 @@ jobs:
       - name: Upload ZIP to S3
         if: success()
         run: |
-          aws s3 cp deployment.zip s3://ms-codedeploy-bucket/deployment.zip
+          aws s3 cp deployment.zip s3://my-aws-codedeploy-bucket/deployment.zip
 
       # Deploy to AWS CodeDeploy using the uploaded ZIP file
       - name: Deploy to AWS CodeDeploy
@@ -158,7 +158,7 @@ jobs:
             --application-name YT-Chrome-Plugin \
             --deployment-config-name CodeDeployDefault.OneAtATime \
             --deployment-group-name YT-Chrome-Plugin-Deployment-Group \
-            --s3-location bucket=ms-codedeploy-bucket,key=deployment.zip,bundleType=zip \
+            --s3-location bucket=my-aws-codedeploy-bucket,key=deployment.zip,bundleType=zip \
             --file-exists-behavior OVERWRITE \
             --region us-east-1
 
